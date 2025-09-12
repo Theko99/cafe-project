@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom"; // ✅ Use HashRouter
 import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
 import ProductManagement from "./components/ProductManagement";
@@ -14,7 +14,7 @@ function App() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch from proxy (port 5000)
+  // Fetch products from proxy server
   useEffect(() => {
     fetch("/products")
       .then((res) => {
@@ -33,7 +33,7 @@ function App() {
       });
   }, []);
 
-  // ✅ Update products properly
+  // Update products in state and backend
   const updateProducts = (newProducts) => {
     setProducts(newProducts);
     newProducts.forEach((product) => {
@@ -50,7 +50,7 @@ function App() {
   }
 
   return (
-    <Router>
+    <Router> {/* ✅ Removed basename */}
       <div>
         <Navbar />
         <div className="container">
