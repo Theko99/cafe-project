@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom"; // ✅ Use HashRouter
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Dashboard from "./components/Dashboard";
 import ProductManagement from "./components/ProductManagement";
@@ -7,66 +7,62 @@ import Inventory from "./components/Inventory";
 import Reports from "./components/Reports";
 import Sales from "./components/Sales";
 import Footer from "./components/Footer";
-
+import { productsData } from "./data"; // fallback data
 import "./App.css";
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch products from proxy server
   useEffect(() => {
-    fetch("/products")
+    // Try to fetch from backend first
+    fetch("http://localhost:5000/products")
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Failed to load products. Make sure JSON server is running.");
+          throw new Error("Backend not available");
         }
         return res.json();
       })
       .then((data) => {
         setProducts(data);
-        setLoading(false);
+        localStorage.setItem("products", JSON.stringify(data));
       })
-      .catch((err) => {
-        console.error(err.message);
-        setLoading(false);
+      .catch(() => {
+        // Fallback: check localStorage, else use productsData
+        const saved = localStorage.getItem("products");
+        if (saved) {
+          setProducts(JSON.parse(saved));
+        } else {
+          setProducts(productsData);
+          localStorage.setItem("products", JSON.stringify(productsData));
+        }
       });
   }, []);
 
-  // Update products in state and backend
-  const updateProducts = (newProducts) => {
-    setProducts(newProducts);
-    newProducts.forEach((product) => {
-      fetch(`/products/${product.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product),
-      }).catch((err) => console.error("Update failed:", err));
-    });
-  };
-
-  if (loading) {
-    return <p>Loading products...</p>;
-  }
+  useEffect(() => {
+    if (products.length > 0) {
+      localStorage.setItem("products", JSON.stringify(products));
+    }
+  }, [products]);
 
   return (
-    <Router> {/* ✅ Removed basename */}
-      <div>
-        <Navbar />
-        <div className="container">
-          <Routes>
-            <Route path="/" element={<Dashboard products={products} />} />
-            <Route
-              path="/products"
-              element={<ProductManagement products={products} setProducts={updateProducts} />}
-            />
-            <Route path="/inventory" element={<Inventory products={products} />} />
-            <Route path="/reports" element={<Reports products={products} />} />
-            <Route path="/sales" element={<Sales products={products} setProducts={updateProducts} />} />
-          </Routes>
-        </div>
-        <Footer />
+    <Router>
+      <Navbar />
+      <div className="container" style={{ paddingBottom: "80px" }}>
+        <Routes>
+          <Route path="/" element={<Dashboard products={products} />} />
+          <Route
+            path="/products"
+            element={<ProductManagement products={products} setProducts={setProducts} />}
+          />
+          <Route path="/inventory" element={<Inventory products={products} />} />
+          <Route path="/reports" element={<Reports products={products} />} />
+          <Route
+            path="/sales"
+            element={<Sales products={products} setProducts={setProducts} />}
+          />
+        </Routes>
       </div>
+      <Footer />
     </Router>
   );
 }

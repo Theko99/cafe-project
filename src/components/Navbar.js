@@ -14,7 +14,7 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <h2>Wings Cafe Inventory</h2>
+      <h2>Wings Café</h2>
       <div className="nav-links-container">
         <ul className="nav-links">
           <li>
@@ -49,11 +49,5 @@ function Navbar() {
 }
 
 export default Navbar;
-
-
-
-
-
-
 
 

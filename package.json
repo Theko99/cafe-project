@@ -1,12 +1,13 @@
 {
-  "name": "wings-cafe-inventory",
+  "name": "cafe-project",
   "version": "0.1.0",
   "private": true,
   "homepage": "https://Theko99.github.io/cafe-project",
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
+    "react-router-dom": "^6.30.1",
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "web-vitals": "^2.1.4"
@@ -17,11 +18,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
-     "start": "json-server --watch db.json --port 10000"
-  
+    "deploy": "gh-pages -d build"
   },
-  "proxy": "http://localhost:5000",
   "eslintConfig": {
     "extends": [
       "react-app",

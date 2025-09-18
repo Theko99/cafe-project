@@ -1,25 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
-function Inventory() {
-  const [products, setProducts] = useState([]);
-  const [error, setError] = useState(null);
-  const API_URL = "/products"; 
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load products. Make sure the server is running.");
-      }
-    };
-    fetchProducts();
-  }, []);
-
+function Inventory({ products }) {
   const checkStock = (qty) =>
     qty > 5 ? "In Stock" : qty > 0 ? "Low Stock" : "Out of Stock";
 
@@ -48,12 +29,6 @@ function Inventory() {
       >
         Inventory
       </h1>
-
-      {error && (
-        <p style={{ color: "red", textAlign: "center", marginBottom: "20px" }}>
-          {error}
-        </p>
-      )}
 
       <div
         style={{
@@ -93,13 +68,13 @@ function Inventory() {
                   </td>
                 </tr>
               ))
-            ) : !error ? (
+            ) : (
               <tr>
                 <td colSpan="4" style={{ padding: "20px", textAlign: "center" }}>
                   No products in inventory.
                 </td>
               </tr>
-            ) : null}
+            )}
           </tbody>
         </table>
       </div>

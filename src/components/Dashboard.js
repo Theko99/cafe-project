@@ -1,33 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
-function Dashboard() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const API_URL = "/products";
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        const data = await res.json();
-        setProducts(data);
-      } catch (err) {
-        setError(`Failed to load products. Is json-server running? (${err.message})`);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, []);
-
+function Dashboard({ products }) {
   const groupedProducts = products.reduce((acc, p) => {
     const cat = p.category || "Uncategorized";
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(p);
     return acc;
   }, {});
+
+  const checkStock = (qty) =>
+    qty === 0 ? "Sold Out" : qty <= 5 ? "Low Stock" : "In Stock";
+
+
+  const defaultImage = "https://via.placeholder.com/120";
 
   return (
     <div
@@ -60,9 +45,6 @@ function Dashboard() {
         >
           Product Menu
         </h1>
-
-        {loading && <p style={{ textAlign: "center" }}>Loading products...</p>}
-        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
 
         {Object.keys(groupedProducts).map((category) => (
           <div key={category} style={{ marginBottom: "50px" }}>
@@ -101,16 +83,7 @@ function Dashboard() {
                     transition: "transform 0.3s, box-shadow 0.3s",
                     minHeight: "180px",
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-5px)";
-                    e.currentTarget.style.boxShadow = "0 14px 30px rgba(0,0,0,0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,0,0,0.08)";
-                  }}
                 >
-                  {/* Product Image */}
                   <div
                     style={{
                       flexShrink: 0,
@@ -123,24 +96,45 @@ function Dashboard() {
                     }}
                   >
                     <img
-                      src={p.image || "https://via.placeholder.com/120"}
+                      src={p.image || defaultImage}
                       alt={p.name}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => (e.currentTarget.src = defaultImage)} // fallback image
                     />
                   </div>
 
-                
                   <div style={{ flex: 1 }}>
-                    <h3 style={{ margin: "0 0 10px", fontSize: "22px", fontWeight: "600", color: "#333" }}>
+                    <h3
+                      style={{
+                        margin: "0 0 10px",
+                        fontSize: "22px",
+                        fontWeight: "600",
+                        color: "#333",
+                      }}
+                    >
                       {p.name}
                     </h3>
-                    {p.description && <p style={{ margin: "0 0 10px", fontSize: "16px", color: "#555" }}>{p.description}</p>}
+                    {p.description && (
+                      <p style={{ margin: "0 0 10px", fontSize: "16px", color: "#555" }}>
+                        {p.description}
+                      </p>
+                    )}
                     <p style={{ margin: "0 0 8px", fontSize: "16px", color: "#666" }}>
                       Price: M {p.price.toFixed(2)} | Qty: {p.quantity}
                     </p>
-                    {p.quantity === 0 && <span style={{ color: "red", fontWeight: "600" }}>Sold Out</span>}
-                    {p.quantity > 0 && p.quantity <= 5 && <span style={{ color: "#f7b500", fontWeight: "600" }}>Low Stock</span>}
-                    {p.quantity > 5 && <span style={{ color: "#85586F", fontWeight: "600" }}>In Stock</span>}
+                    <span
+                      style={{
+                        color:
+                          p.quantity === 0
+                            ? "red"
+                            : p.quantity <= 5
+                            ? "#f7b500"
+                            : "#85586F",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {checkStock(p.quantity)}
+                    </span>
                   </div>
                 </div>
               ))}
